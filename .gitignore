@@ -1,4 +1,5 @@
 /bin
 /bin/*
 simulator.exe
+simulator-debug.exe
 /.vscode/

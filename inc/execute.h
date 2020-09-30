@@ -2,14 +2,33 @@
 #define EXECUTE_H_INCLUDED
 
 #include <common.h>
-
-struct execute_output
-{
-};
+#include <sstream>
+#include <string>
 
 struct execute_input
 {
+    // op determines what operation should be performed by the ALU
+    opcode op;
+    // immediate should actually be a 16-bit signed integer, but that was causing too much trouble
+    int immediate;
+    int offset;
+    // rsValue is the value read from the instruction's $s
+    int rsValue;
+    // rtValue is the value read from the instruction's $t
+    int rtValue;
+    unsigned int PC;
 };
+
+struct execute_output
+{
+    // result is the output from the ALU module
+    int result;
+    // zero indicates that the result is zero
+    bool zero;
+    unsigned int branchAddress;
+};
+
+std::string execute_output_str(execute_output eo);
 
 class execute
 {

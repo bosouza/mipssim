@@ -44,22 +44,7 @@ instruction newInstruction(std::string s)
     }
 }
 
-// instruction newInstruction(string s)
-// {
-//     vector<string> segments;
-
-//     string delim = ",";
-//     auto start = 0U;
-//     auto end = s.find(delim);
-//     while (end != std::string::npos)
-//     {
-//         segments.push_back(s.substr(start, end - start));
-//         start = end + delim.length();
-//         end = s.find(delim, start);
-//     }
-
-//     if (segments.size() == 0)
-//     {
-//         cout << "empty instruction" << endl;
-//     }
-// }
+bool isValidRegister(unsigned int address)
+{
+    return address < REGISTER_QTY;
+}

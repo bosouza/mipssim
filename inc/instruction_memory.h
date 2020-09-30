@@ -14,6 +14,7 @@ class instruction_memory
 {
 public:
     instruction_memory(string program_path);
+    instruction_memory(vector<instruction> i);
     ~instruction_memory();
     instruction getInstruction(unsigned int address);
 

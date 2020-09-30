@@ -3,18 +3,32 @@
 
 #include <common.h>
 #include <instruction_memory.h>
+#include <sstream>
+#include <string>
+
+struct fetch_input
+{
+    bool branch;
+    unsigned int branchAddress;
+    bool branched;
+};
 
 struct fetch_output
 {
     instruction i;
+    unsigned int PC;
+    bool branched;
+    bool invalidateBranch;
 };
+
+std::string fetch_output_str(fetch_output fo);
 
 class fetch
 {
 public:
     fetch(instruction_memory *mem);
     ~fetch();
-    fetch_output run();
+    fetch_output run(fetch_input);
 
 private:
     instruction_memory *mem;

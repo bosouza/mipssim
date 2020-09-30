@@ -8,14 +8,11 @@
 #include <write.h>
 #include <control.h>
 
-#include <test_program_1.h>
-
 using namespace std;
 
 int main()
 {
-    // instruction_memory instruct_mem("./test1.txt");
-    instruction_memory instruct_mem(testProgram1);
+    instruction_memory instruct_mem("./test1.txt");
 
     fetch fetchStage(&instruct_mem);
     decode decodeStage;

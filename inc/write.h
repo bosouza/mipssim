@@ -14,7 +14,7 @@ struct write_input
 
 struct write_output
 {
-    int writeData;
+    int writeData = 0;
 };
 
 std::string write_output_str(write_output wo);

@@ -15,10 +15,10 @@ struct fetch_input
 
 struct fetch_output
 {
-    instruction i;
-    unsigned int PC;
-    bool branched;
-    bool invalidateBranch;
+    instruction i = {.opc = NOP};
+    unsigned int PC = 0;
+    bool branched = false;
+    bool invalidateBranch = false;
 };
 
 std::string fetch_output_str(fetch_output fo);

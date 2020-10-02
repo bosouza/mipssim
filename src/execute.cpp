@@ -27,10 +27,6 @@ execute_output execute::run(execute_input in)
     case SUBI:
         out.result = in.rsValue - in.immediate;
         break;
-    case BEQ:
-        out.zero = in.rsValue == in.rtValue;
-        out.branchAddress = in.PC + in.offset * 4;
-        break;
     }
 
     return out;
@@ -39,6 +35,6 @@ execute_output execute::run(execute_input in)
 std::string execute_output_str(execute_output eo)
 {
     std::ostringstream out;
-    out << "{ result:" << eo.result << " branchAddress:" << eo.branchAddress << " zero:" << eo.zero << " }";
+    out << "{ result:" << eo.result << " }";
     return out.str();
 }

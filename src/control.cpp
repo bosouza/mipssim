@@ -39,12 +39,7 @@ bool isConditionalBranchInstruction(opcode opc)
     return opc == BEQ;
 }
 
-bool shouldBranch(bool branch, bool zero)
+bool shouldBranch(bool branch, bool equal)
 {
-    return branch && zero;
-}
-
-bool shouldBranch(bool branch, int rsValue, int rtValue)
-{
-    return branch && (rsValue == rtValue);
+    return branch && equal;
 }

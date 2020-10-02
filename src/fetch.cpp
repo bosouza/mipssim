@@ -21,13 +21,13 @@ fetch_output fetch::run(fetch_input in)
         this->PC += next_instruction.opx.offset * 4;
     else
         this->PC += 4;
-
     return fetch_output{.i = next_instruction, .PC = currentPC};
 }
 
 std::string fetch_output_str(fetch_output fo)
 {
     std::ostringstream out;
-    out << "{ i.opc:" << fo.i.opc << " PC:" << fo.PC << " }";
+    out << "{ i.opc:" << fo.i.opc << " PC:" << fo.PC << " rs:" << fo.i.opx.rs << " rt:" << fo.i.opx.rt
+        << " imm:" << fo.i.opx.imm << " offset:" << fo.i.opx.offset << " }";
     return out.str();
 }

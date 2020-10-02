@@ -8,6 +8,5 @@ bool shouldWriteToRegister(opcode);
 unsigned int determineTargetRegister(opcode, unsigned int rd, unsigned int rt);
 bool isConditionalBranchInstruction(opcode);
 bool shouldBranch(bool branch, bool zero);
-bool shouldBranch(bool branch, int rsValue, int rtValue);
 
 #endif

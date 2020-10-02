@@ -14,12 +14,16 @@ decode_output decode::run(decode_input in)
 {
     // first write, then read
     if (in.regWrite)
+    {
+        std::cout << "  writting " << in.writeData << " to " << in.writeAddress << std::endl;
         this->writeReg(in.writeAddress, in.writeData);
+    }
 
     decode_output out;
     // read rs and rt no matter what, if it's garbage the other stages just won't use it
     out.rsValue = this->readReg(in.i.opx.rs);
     out.rtValue = this->readReg(in.i.opx.rt);
+    out.equal = out.rsValue == out.rtValue;
     out.op = in.i.opc;
     out.immediate = in.i.opx.imm;
     out.offset = in.i.opx.offset;
@@ -27,6 +31,7 @@ decode_output decode::run(decode_input in)
     out.regWrite = shouldWriteToRegister(in.i.opc);
     out.targetReg = determineTargetRegister(in.i.opc, in.i.opx.rd, in.i.opx.rt);
     out.branch = isConditionalBranchInstruction(in.i.opc);
+    out.branchAddress = in.PC + in.i.opx.offset * 4;
     return out;
 }
 
@@ -55,7 +60,8 @@ int decode::readReg(unsigned int address)
 std::string decode_output_str(decode_output dout)
 {
     std::ostringstream out;
-    out << "{ rsValue:" << dout.rsValue << " rtValue:" << dout.rtValue << " op:" << dout.op
+    out << "{ rsValue:" << dout.rsValue << " rtValue:" << dout.rtValue
+        << " equal:" << dout.equal << " op:" << dout.op
         << " immediate:" << dout.immediate << " regWrite:" << dout.regWrite
         << " branch:" << dout.branch << " offset:" << dout.offset
         << " memToReg:" << dout.memToReg << " targetReg:" << dout.targetReg << " }";

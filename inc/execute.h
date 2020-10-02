@@ -22,10 +22,7 @@ struct execute_input
 struct execute_output
 {
     // result is the output from the ALU module
-    int result;
-    // zero indicates that the result is zero
-    bool zero;
-    unsigned int branchAddress;
+    int result = 0;
 };
 
 std::string execute_output_str(execute_output eo);

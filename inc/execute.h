@@ -23,6 +23,10 @@ struct execute_output
 {
     // result is the output from the ALU module
     int result = 0;
+    // equal indicates that rsValue and rtValue are the same
+    bool equal = false;
+    // branchAddress is the target address for the conditional branch instruction
+    unsigned int branchAddress = 0;
 };
 
 std::string execute_output_str(execute_output eo);

@@ -26,13 +26,14 @@ std::string fetch_output_str(fetch_output fo);
 class fetch
 {
 public:
-    fetch(instruction_memory *mem);
+    fetch(instruction_memory *mem, bool enablePrediction);
     ~fetch();
     fetch_output run(fetch_input);
 
 private:
     instruction_memory *mem;
     unsigned int PC;
+    bool predictionEnabled;
 };
 
 #endif

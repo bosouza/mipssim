@@ -15,7 +15,7 @@ int main()
 {
     instruction_memory instruct_mem("./mytest.txt");
 
-    fetch fetchStage(&instruct_mem);
+    fetch fetchStage(&instruct_mem, false);
     decode decodeStage;
     forwarding forwardingUnit;
     execute executeStage;
@@ -43,6 +43,7 @@ int main()
     bool regWrite[5] = {0};
     bool memToReg[5] = {0};
     bool branched[5] = {0};
+    bool branch[5] = {0};
     int ALUResult[5];
     unsigned int targetReg[5];
     unsigned int PC[5];
@@ -81,20 +82,20 @@ int main()
             .executeRegWrite = regWrite[2],
             .executeTargetReg = targetReg[2],
             .result = out3.result,
-            .writeRegWrite = regWrite[4],
-            .writeTargetReg = targetReg[4],
-            .writeData = out5.writeData,
+            .writeRegWrite = false, // we consume this directly from the execute stage
+            .writeTargetReg = 0,    // we consume this directly from the execute stage
+            .writeData = 0,         // we consume this directly from the execute stage
         };
         in2 = {
             .i = out1.i,
-            .regWrite = regWrite[4],
-            .writeAddress = targetReg[4],
+            .regWrite = 0,     // we consume this directly from the write back stage
+            .writeAddress = 0, // we consume this directly from the write back stage
             .PC = out1.PC,
-            .writeData = out5.writeData};
+            .writeData = 0}; // we consume this directly from the write back stage
         in1 = {
-            .branch = shouldBranch(out2.branch, out2.equal),
-            .branchAddress = out2.branchAddress,
-            .branched = branched[2]};
+            .branch = false,    // we consume this directly from the execute stage
+            .branchAddress = 0, // we consume this directly from the execute stage
+            .branched = 0};     // we consume this directly from the execute stage
 
         // start at different points in the switch case statement based on how many stages should run (no breaks)
         switch (stagesToExecute)
@@ -118,6 +119,14 @@ int main()
             regWrite[2] = out2.regWrite;
             memToReg[2] = out2.memToReg;
             targetReg[2] = out2.targetReg;
+            branch[2] = out2.branch;
+
+            // we consume data directly from the write-back stage, since there's no barrier there, and its output
+            // will asynchronously propagate to the execute stage input
+            inF.writeRegWrite = regWrite[4];
+            inF.writeTargetReg = targetReg[4];
+            inF.writeData = out5.writeData;
+
             // the forwarding unit executes in parallel to the execute stage
             outF = forwardingUnit.run(inF);
             cout << "   forwarding_output: " << forwarding_output_str(outF) << endl;
@@ -135,6 +144,11 @@ int main()
             rs[1] = out1.i.opx.rs;
             rt[1] = out1.i.opx.rt;
             branched[1] = out1.branched;
+            // since the instruction decode stage only runs in the half end of the cycle, we can actually
+            // consume the signals from the write-back stage, which runs only in the first half
+            in2.regWrite = regWrite[4];
+            in2.writeAddress = targetReg[4];
+            in2.writeData = out5.writeData;
             out2 = decodeStage.run(in2);
             cout << "   decode_output: " << decode_output_str(out2) << endl;
         case 1: // run only first stage (instruction fetch)
@@ -142,7 +156,14 @@ int main()
             if (branchBubble)
                 out1 = fetch_output{.i = {.opc = NOP}};
             else
+            {
+                // since the instruction fetch stage starts on the end half of the cycle, and the branch-related
+                // stuff from execute is calculated in the first half, we can actually consume it directly here
+                in1.branch = shouldBranch(branch[2], out3.equal);
+                in1.branchAddress = out3.branchAddress;
+                in1.branched = branched[2];
                 out1 = fetchStage.run(in1);
+            }
 
             if (isConditionalBranchInstruction(out1.i.opc))
                 branchBubble = true;

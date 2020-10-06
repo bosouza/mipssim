@@ -19,8 +19,6 @@ struct decode_output
 {
     int rsValue = 0;
     int rtValue = 0;
-    // equal indicates that rsValue and rtValue are the same
-    bool equal = false;
     opcode op = NOP;
     int immediate = 0;
     int offset = 0;
@@ -28,8 +26,6 @@ struct decode_output
     bool memToReg = false;
     unsigned int targetReg = 0;
     bool branch = false;
-    // branchAddress is the target address for the conditional branch instruction
-    unsigned int branchAddress = 0;
 };
 
 std::string decode_output_str(decode_output dout);

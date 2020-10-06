@@ -1,10 +1,11 @@
 #include <fetch.h>
 #include <iostream>
 
-fetch::fetch(instruction_memory *mem)
+fetch::fetch(instruction_memory *mem, bool enablePrediction)
 {
     this->mem = mem;
     this->PC = 0;
+    this->predictionEnabled = enablePrediction;
 }
 fetch::~fetch()
 {

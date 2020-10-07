@@ -212,6 +212,7 @@ int main(int argc, char *argv[])
         if (out1.i.opc == OOB && opc[1] == OOB && opc[2] == OOB && opc[3] == OOB && opc[4] == OOB)
         {
             cout << "program finished on clock " << clockCounter << endl;
+            cout << fetchStage.getStatistics() << endl;
             return 0;
         }
         clockCounter++;

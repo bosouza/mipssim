@@ -9,6 +9,8 @@ fetch::fetch(instruction_memory *mem, bool enablePrediction)
     this->predictionEnabled = enablePrediction;
     for (int i = 0; i < PREDICTION_TABLE_SIZE; i++)
         this->branchTable[i] = DONT_BRANCH;
+    this->executedInstructions = 0;
+    this->missedInstructions = 0;
 }
 fetch::~fetch()
 {
@@ -30,6 +32,7 @@ fetch_output fetch::run(fetch_input in)
                 out.invalidatePrediction = true;
                 // update branch table with the missed predition
                 this->updateBranch(in.BEQAddress, false);
+                this->missedInstructions++;
             }
             else
             {
@@ -66,11 +69,17 @@ fetch_output fetch::run(fetch_input in)
         else
         {
             out.insertBubble = true;
+            this->executedInstructions++;
+            this->missedInstructions++;
             this->PC += 4;
         }
     }
     else
         this->PC += 4;
+
+    // TODO: should be done somewhere else
+    if (out.i.opc != OOB)
+        this->executedInstructions++;
     return out;
 }
 
@@ -129,6 +138,14 @@ void fetch::updateBranch(unsigned int address, bool hit)
             throw;
         }
     }
+}
+
+std::string fetch::getStatistics()
+{
+    std::ostringstream out;
+    out << "Executed instructions: " << this->executedInstructions
+        << ", Missed instructions: " << this->missedInstructions;
+    return out.str();
 }
 
 std::string fetch_output_str(fetch_output fo)

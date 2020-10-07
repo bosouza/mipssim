@@ -46,12 +46,17 @@ public:
     fetch_output run(fetch_input);
     bool shouldBranch(unsigned int address);
     void updateBranch(unsigned int address, bool hit);
+    // TODO: should move to a separate class for handling statistics stuff
+    std::string getStatistics();
 
 private:
     instruction_memory *mem;
     unsigned int PC;
     bool predictionEnabled;
     predictionState branchTable[PREDICTION_TABLE_SIZE];
+    // TODO: should move to a separate class for handling statistics stuff
+    unsigned int executedInstructions;
+    unsigned int missedInstructions;
 };
 
 #endif

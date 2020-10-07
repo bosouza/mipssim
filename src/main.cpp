@@ -11,21 +11,23 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     bool prediction = false;
     ostream log(nullptr);
 
-    if(argc<2)
+    if (argc < 2)
     {
         cout << "the path to file wasn't specified at the program call. That will be finished" << endl;
         return 1;
     }
 
-    for(int i = 2;i<argc;i++)
+    for (int i = 2; i < argc; i++)
     {
-        if(!string(argv[i]).compare("--prediction")) prediction = true;
-        if(!string(argv[i]).compare("-v")) log.rdbuf(cout.rdbuf()); 
+        if (!string(argv[i]).compare("--prediction"))
+            prediction = true;
+        if (!string(argv[i]).compare("-v"))
+            log.rdbuf(cout.rdbuf());
     }
 
     instruction_memory instruct_mem(argv[1]);
@@ -69,6 +71,8 @@ int main(int argc, char* argv[])
 
     // branchBubble indicates that the first pipeline stages should halt because of a conditional branch
     bool branchBubble = false;
+    // discardInstruction indicates that the execute stage should ignore the instruction coming from decode
+    bool discardInstruction = false;
 
     // in the first iteration only the first stage will do something
     int stagesToExecute = 1;
@@ -129,12 +133,25 @@ int main(int argc, char* argv[])
             ALUResult[3] = out3.result;
             out4 = memoryStage.run(in4);
         case 3: // run 3 first stages, from execute to instruction fetch
-            opc[2] = opc[1];
-            branched[2] = branched[1];
-            regWrite[2] = out2.regWrite;
-            memToReg[2] = out2.memToReg;
-            targetReg[2] = out2.targetReg;
-            branch[2] = out2.branch;
+            if (discardInstruction)
+            {
+                opc[2] = NOP;
+                branched[2] = false;
+                regWrite[2] = false;
+                memToReg[2] = false;
+                targetReg[2] = 0;
+                branch[2] = false;
+            }
+            else
+            {
+                opc[2] = opc[1];
+                branched[2] = branched[1];
+                regWrite[2] = out2.regWrite;
+                memToReg[2] = out2.memToReg;
+                targetReg[2] = out2.targetReg;
+                branch[2] = out2.branch;
+                PC[2] = PC[1];
+            }
 
             // we consume data directly from the write-back stage, since there's no barrier there, and its output
             // will asynchronously propagate to the execute stage input
@@ -147,6 +164,8 @@ int main(int argc, char* argv[])
             log << "   forwarding_output: " << forwarding_output_str(outF) << endl;
             in3.rsValue = outF.rsValue;
             in3.rtValue = outF.rtValue;
+            if (discardInstruction)
+                in3 = execute_input{.op = NOP};
             out3 = executeStage.run(in3);
             // the branch signal means we had a BEQ, so now the fetch stage has to determine
             // if the branch should occur and start fetching instructions again
@@ -177,11 +196,12 @@ int main(int argc, char* argv[])
                 in1.branch = shouldBranch(branch[2], out3.equal);
                 in1.branchAddress = out3.branchAddress;
                 in1.branched = branched[2];
+                in1.execBEQ = opc[2];
+                in1.BEQAddress = PC[2];
                 out1 = fetchStage.run(in1);
             }
-
-            if (isConditionalBranchInstruction(out1.i.opc))
-                branchBubble = true;
+            discardInstruction = out1.invalidatePrediction;
+            branchBubble = out1.insertBubble;
             log << "   fetch_output: " << fetch_output_str(out1) << endl;
             break;
         default:

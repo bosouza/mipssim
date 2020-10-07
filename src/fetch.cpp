@@ -74,7 +74,6 @@ fetch_output fetch::run(fetch_input in)
 
 bool fetch::shouldBranch(unsigned int address)
 {
-    return true;
     switch (this->branchTable[address % PREDICTION_TABLE_SIZE])
     {
     case DONT_BRANCH:

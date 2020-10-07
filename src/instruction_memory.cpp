@@ -15,7 +15,10 @@ instruction_memory::instruction_memory(string program_path)
     string line;
     while (getline(instructionFile, line))
     {
-        this->instructions.push_back(newInstruction(line));
+        trim(line);
+        trim(line,'\t');
+        if(!(line.empty() || line.at(0)=='#'))
+            this->instructions.push_back(newInstruction(line));
     }
     instructionFile.close();
 }

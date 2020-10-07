@@ -6,11 +6,11 @@
 // How many registers there are
 #define REGISTER_QTY 32
 
-void rtrim(std::string &s, char c);
+void rtrim(std::string &s, char c = ' ');
 
-void ltrim(std::string &s, char c);
+void ltrim(std::string &s, char c = ' ');
 
-void trim(std::string &s, char c);
+void trim(std::string &s, char c = ' ');
 
 enum instructionFormat
 {

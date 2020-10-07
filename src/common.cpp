@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 
-void rtrim(std::string &s, char c = ' ')
+void rtrim(std::string &s, char c)
 {
 
     if (s.empty())
@@ -22,7 +22,7 @@ void rtrim(std::string &s, char c = ' ')
         s = "";
 }
 
-void ltrim(std::string &s, char c = ' ')
+void ltrim(std::string &s, char c)
 {
 
     if (s.empty())
@@ -33,7 +33,7 @@ void ltrim(std::string &s, char c = ' ')
     s = std::string(s.rbegin(), s.rend());
 }
 
-void trim(std::string &s, char c = ' ')
+void trim(std::string &s, char c)
 {
 
     if (s.empty())

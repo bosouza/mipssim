@@ -14,10 +14,7 @@ decode_output decode::run(decode_input in)
 {
     // first write, then read
     if (in.regWrite)
-    {
-        std::cout << "  writting " << in.writeData << " to " << in.writeAddress << std::endl;
         this->writeReg(in.writeAddress, in.writeData);
-    }
 
     decode_output out;
     // read rs and rt no matter what, if it's garbage the other stages just won't use it

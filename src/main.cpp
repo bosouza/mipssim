@@ -11,11 +11,26 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
-    instruction_memory instruct_mem("./mytest.txt");
+    bool prediction = false;
+    ostream log(nullptr);
 
-    fetch fetchStage(&instruct_mem, false);
+    if(argc<2)
+    {
+        cout << "the path to file wasn't specified at the program call. That will be finished" << endl;
+        return 1;
+    }
+
+    for(int i = 2;i<argc;i++)
+    {
+        if(!string(argv[i]).compare("--prediction")) prediction = true;
+        if(!string(argv[i]).compare("-v")) log.rdbuf(cout.rdbuf()); 
+    }
+
+    instruction_memory instruct_mem(argv[1]);
+
+    fetch fetchStage(&instruct_mem, prediction);
     decode decodeStage;
     forwarding forwardingUnit;
     execute executeStage;
@@ -60,7 +75,7 @@ int main()
     int clockCounter = 0;
     while (1)
     {
-        cout << "clockCounter: " << clockCounter << endl;
+        log << "clockCounter: " << clockCounter << endl;
 
         // determine the inputs based on the previous outputs
         in5 = {
@@ -105,7 +120,7 @@ int main()
             regWrite[4] = regWrite[3];
             targetReg[4] = targetReg[3];
             out5 = writeStage.run(in5);
-            cout << "   write_output: " << write_output_str(out5) << endl;
+            log << "   write_output: " << write_output_str(out5) << endl;
         case 4: // run 4 first stages, from memory-access to instruction fetch
             opc[3] = opc[2];
             regWrite[3] = regWrite[2];
@@ -129,7 +144,7 @@ int main()
 
             // the forwarding unit executes in parallel to the execute stage
             outF = forwardingUnit.run(inF);
-            cout << "   forwarding_output: " << forwarding_output_str(outF) << endl;
+            log << "   forwarding_output: " << forwarding_output_str(outF) << endl;
             in3.rsValue = outF.rsValue;
             in3.rtValue = outF.rtValue;
             out3 = executeStage.run(in3);
@@ -137,7 +152,7 @@ int main()
             // if the branch should occur and start fetching instructions again
             if (out2.branch)
                 branchBubble = false;
-            cout << "   execute_output: " << execute_output_str(out3) << endl;
+            log << "   execute_output: " << execute_output_str(out3) << endl;
         case 2: // run 2 first stages, from instruction-decode to instruction fetch
             opc[1] = out1.i.opc;
             PC[1] = out1.PC;
@@ -150,7 +165,7 @@ int main()
             in2.writeAddress = targetReg[4];
             in2.writeData = out5.writeData;
             out2 = decodeStage.run(in2);
-            cout << "   decode_output: " << decode_output_str(out2) << endl;
+            log << "   decode_output: " << decode_output_str(out2) << endl;
         case 1: // run only first stage (instruction fetch)
             // if we have to generate a bubble we just "read" a NOP, else we make an actual read
             if (branchBubble)
@@ -167,7 +182,7 @@ int main()
 
             if (isConditionalBranchInstruction(out1.i.opc))
                 branchBubble = true;
-            cout << "   fetch_output: " << fetch_output_str(out1) << endl;
+            log << "   fetch_output: " << fetch_output_str(out1) << endl;
             break;
         default:
             cout << "invalid state reached, stagesToExecute is " << stagesToExecute << endl;
@@ -182,4 +197,6 @@ int main()
         if (stagesToExecute < 5)
             stagesToExecute++;
     }
+
+    return 0;
 }

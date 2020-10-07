@@ -29,10 +29,7 @@ execute_output execute::run(execute_input in)
         break;
     case BEQ:
         out.equal = in.rsValue == in.rtValue;
-        if (out.equal)
-            out.branchAddress = in.PC + in.offset * 4;
-        else
-            out.branchAddress = in.PC + 4;
+        out.branchAddress = in.PC + in.offset * 4;
         break;
     }
 

@@ -23,7 +23,10 @@ fetch_output fetch::run(fetch_input in)
             // if our branch prediction misssed 2 cycles ago, we'll have to just follow the correct branch
             if (in.branched != in.branch)
             {
-                this->PC = in.branchAddress;
+                if (in.branch)
+                    this->PC = in.branchAddress;
+                else
+                    this->PC = in.BEQAddress + 4;
                 out.invalidatePrediction = true;
                 // update branch table with the missed predition
                 this->updateBranch(in.BEQAddress, false);
@@ -49,10 +52,9 @@ fetch_output fetch::run(fetch_input in)
     {
         if (this->predictionEnabled)
         {
-            unsigned int targetAddress = this->PC + out.i.opx.offset * 4;
             if (this->shouldBranch(this->PC))
             {
-                this->PC = targetAddress;
+                this->PC = this->PC + out.i.opx.offset * 4;
                 out.branched = true;
             }
             else

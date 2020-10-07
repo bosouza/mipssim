@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
                 memToReg[2] = false;
                 targetReg[2] = 0;
                 branch[2] = false;
+                PC[2] = 0;
             }
             else
             {
